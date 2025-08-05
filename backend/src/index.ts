@@ -5,6 +5,9 @@ import session from "cookie-session";
 import config from "./config/app.config";
 import connectDatabase from "./config/database.config";
 import { HTTP_CONFIG } from "./config/http.config";
+import "./config/passport.config";
+import passport from "passport";
+import authRoutes from "./routes/auth.route";
 
 const app = express();
 const BASE_PATH = config.BASE_PATH;
@@ -18,6 +21,8 @@ app.use(session({
     httpOnly:true,
     sameSite:"lax",
 }));
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use(cors({
     origin:config.FRONTEND_ORIGIN,
@@ -29,6 +34,7 @@ app.get("/",(req:Request,res:Response,next:NextFunction)=>{
     });
 });
 
+app.use(`${BASE_PATH}/auth`,authRoutes);
 
 app.listen(config.PORT, async()=>{
     console.log(`Server is running on port ${config.PORT}`);
