@@ -4,7 +4,7 @@ import { asyncHandler } from "../middlewares/asyncHandler.middleware";
 import { getCurrentUserService } from "../services/user.service";
 
 export const getCurrentUserController =  asyncHandler(async (req: Request, res: Response) => {
-    const userId = req.user?.id;
+    const userId = req.user?._id;
 
     if (!userId) {
         return res.status(401).json({ message: "Unauthorized" });

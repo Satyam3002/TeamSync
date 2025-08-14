@@ -28,7 +28,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use(cors({
-    origin:config.FRONTEND_ORIGIN,
+    origin: true, // Allow all origins for testing
     credentials:true,
 }));
 app.get("/",(req:Request,res:Response,next:NextFunction)=>{
@@ -37,9 +37,30 @@ app.get("/",(req:Request,res:Response,next:NextFunction)=>{
     });
 });
 
+// Debug endpoint to check session state
+app.get("/debug-session",(req:Request,res:Response,next:NextFunction)=>{
+    console.log("Session debug:", {
+        session: req.session,
+        user: req.user,
+        passport: req.session?.passport,
+        isAuthenticated: !!req.user,
+        cookies: req.headers.cookie
+    });
+    
+    res.status(HTTP_CONFIG.OK).json({
+        message:"Session debug",
+        session: req.session,
+        user: req.user,
+        passport: req.session?.passport,
+        isAuthenticated: !!req.user,
+        hasCookies: !!req.headers.cookie
+    });
+});
+
 app.use(`${BASE_PATH}/auth`,authRoutes);
 app.use(`${BASE_PATH}/user`,isAuthenticated,userRoutes);
 app.use(`${BASE_PATH}/workspace`,isAuthenticated,workspaceRoutes);
+
 
 app.listen(config.PORT, async()=>{
     console.log(`Server is running on port ${config.PORT}`);

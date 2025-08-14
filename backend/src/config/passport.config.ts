@@ -72,7 +72,14 @@ import {
 
  
   
-  passport.serializeUser((user: any, done) => done(null, user));
-  passport.deserializeUser((user: any, done) => done(null, user));
+  passport.serializeUser((user: any, done) => {
+    console.log("Serializing user:", user.id);
+    done(null, user);
+  });
+  
+  passport.deserializeUser((user: any, done) => {
+    console.log("Deserializing user:", user?.id);
+    done(null, user);
+  });
 
     

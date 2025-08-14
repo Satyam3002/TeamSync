@@ -19,3 +19,5 @@ export const  updateWorkspaceSchema = z.object({
     description:descriptionSchema
 
 });
+
+export const workspaceIdSchema = z.string().trim().min(1,{message:"Workspace ID is required"});
