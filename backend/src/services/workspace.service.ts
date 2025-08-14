@@ -5,6 +5,8 @@ import { NotFoundException } from "../utils/appError";
 import UserModel from "../models/user.model";
 import MemberModel from "../models/member.model";
 import mongoose from "mongoose";
+import TaskModel from "../models/task.model";
+import { TaskStatusEnum } from "../enums/task.enum";
 
 //*********************************************
 //  Create Workspace Service
@@ -90,4 +92,56 @@ export const getWorkspaceByIdService = async (workspaceId:string) => {
 
 }
 
+export const getWorkspaceMembersService = async (workspaceId:string) => {
+   //Fetch all members of the workspace
+   const members = await MemberModel.find({workspaceId})
+   .populate("userId","name email profilePicture -password")
+   .populate("role","name");
+
+
+   const roles =  await RoleModel.find({}, {name:1,_id:1})
+   .select("-permission")
+   .lean();
+
+   return {
+    members,
+    roles
+   }
+
    
+}
+
+export const getWorkspaceAnalyticsService = async (workspaceId:string) => {
+    const currentDate = new Date();
+
+    const totalTasks = await TaskModel.countDocuments({
+       workspace: workspaceId,
+    });
+
+    const overdueTasks = await TaskModel.countDocuments({
+        workspace: workspaceId,
+        dueDate: {
+            $lt: currentDate
+        },
+        status: {
+            $ne: TaskStatusEnum.DONE
+        }
+    });
+
+    const completedTasks = await TaskModel.countDocuments({
+        workspace: workspaceId,
+        status: TaskStatusEnum.DONE
+    });
+
+    const analytics = {
+        totalTasks,
+        overdueTasks,
+        completedTasks
+    }
+
+    return {
+        analytics
+    }
+    
+    
+}
