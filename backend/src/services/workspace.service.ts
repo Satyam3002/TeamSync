@@ -9,7 +9,6 @@ import TaskModel from "../models/task.model";
 import { TaskStatusEnum } from "../enums/task.enum";
 import { workspaceIdSchema } from "../validation/workspace.validation";
 import { roleGuard } from "../utils/roleGuard";
-import exp from "constants";
 import { Roles } from "../enums/role.enums";
 import ProjectModel from "../models/project.model";
 import memberRouter from "../routes/member.route";
