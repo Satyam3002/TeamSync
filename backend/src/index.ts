@@ -88,5 +88,7 @@ app.use(`${BASE_PATH}/task`,isAuthenticated,taskRoutes);
 
 app.listen(config.PORT, async()=>{
     console.log(`Server is running on port ${config.PORT}`);
+    console.log(`Environment: ${config.NODE_ENV}`);
+    console.log(`Frontend Origin: ${config.FRONTEND_ORIGIN}`);
     await connectDatabase();
 });
