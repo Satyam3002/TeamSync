@@ -49,18 +49,25 @@ export const loginUserController = asyncHandler(async (req: Request, res: Respon
             console.log("Login successful - User:", user);
             
             // Force session save
-            req.session.save((err) => {
-                if (err) {
-                    console.error("Session save error:", err);
-                } else {
-                    console.log("Session saved successfully");
-                }
-                
+            if (req.session) {
+                req.session.save((err: Error | null) => {
+                    if (err) {
+                        console.error("Session save error:", err);
+                    } else {
+                        console.log("Session saved successfully");
+                    }
+                    
+                    return res.status(HTTP_CONFIG.OK).json({
+                        message: "Login successful",
+                        user,
+                    });
+                });
+            } else {
                 return res.status(HTTP_CONFIG.OK).json({
                     message: "Login successful",
                     user,
                 });
-            });
+            }
         });
     })(req, res, next);
 });
