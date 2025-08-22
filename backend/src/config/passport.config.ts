@@ -6,6 +6,7 @@ import { ProviderEnumType } from "../enums/account-provider.enum";
 
 import config from "../config/app.config";
 import { NotFoundException } from "../utils/appError";
+import UserModel from "../models/user.model";
 
 import {
     loginOrCreateAccountService,
@@ -74,12 +75,17 @@ import {
   
   passport.serializeUser((user: any, done) => {
     console.log("Serializing user:", user?._id);
-    done(null, user);
+    done(null, user._id);
   });
   
-  passport.deserializeUser((user: any, done) => {
-    console.log("Deserializing user:", user?._id);
-    done(null, user);
+  passport.deserializeUser(async (userId: string, done) => {
+    console.log("Deserializing user:", userId);
+    try {
+      const user = await UserModel.findById(userId);
+      done(null, user);
+    } catch (error) {
+      done(error, null);
+    }
   });
 
     
