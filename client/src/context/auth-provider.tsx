@@ -36,7 +36,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     isFetching,
     refetch: refetchAuth,
   } = useAuth();
-  const user = authData?.data?.user;
+  const user = authData?.data;
 
   const {
     data: workspaceData,

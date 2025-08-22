@@ -23,7 +23,7 @@ const InviteUser = () => {
   const inviteCode = param.inviteCode as string;
 
   const { data: authData, isPending } = useAuth();
-  const user = authData?.user;
+  const user = authData?.data;
 
   const { mutate, isPending: isLoading } = useMutation({
     mutationFn: invitedUserJoinWorkspaceMutationFn,
