@@ -27,6 +27,7 @@ app.use(session({
     httpOnly: true,
     secure: config.NODE_ENV === "production", // Use secure cookies in production
     sameSite: config.NODE_ENV === "production" ? "none" : "lax", // Allow cross-site cookies in production
+    path: "/", // Ensure cookies are sent for all paths
 }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -40,7 +41,8 @@ app.use(cors({
     ].filter(Boolean),
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
+    allowedHeaders: ["Content-Type", "Authorization", "Cookie", "Set-Cookie"],
+    exposedHeaders: ["Set-Cookie"],
 }));
 app.get("/",(req:Request,res:Response,next:NextFunction)=>{
     res.status(HTTP_CONFIG.OK).json({
