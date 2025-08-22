@@ -58,7 +58,8 @@ app.get("/debug-session",(req:Request,res:Response,next:NextFunction)=>{
         passport: req.session?.passport,
         isAuthenticated: !!req.user,
         cookies: req.headers.cookie,
-        origin: req.headers.origin
+        origin: req.headers.origin,
+        sessionName: "session"
     });
     
     res.status(HTTP_CONFIG.OK).json({
@@ -68,7 +69,8 @@ app.get("/debug-session",(req:Request,res:Response,next:NextFunction)=>{
         passport: req.session?.passport,
         isAuthenticated: !!req.user,
         hasCookies: !!req.headers.cookie,
-        origin: req.headers.origin
+        origin: req.headers.origin,
+        sessionName: "session"
     });
 });
 

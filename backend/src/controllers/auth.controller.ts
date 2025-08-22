@@ -47,6 +47,7 @@ export const loginUserController = asyncHandler(async (req: Request, res: Respon
             // Debug: Check if session is being saved
             console.log("Login successful - Session:", req.session);
             console.log("Login successful - User:", user);
+            console.log("Login successful - Response headers will include Set-Cookie");
             
             // cookie-session saves automatically, no need to call save()
             return res.status(HTTP_CONFIG.OK).json({
