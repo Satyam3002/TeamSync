@@ -24,15 +24,23 @@ app.use(session({
     name:"session",
     keys:[config.SESSION_SECRET],
     maxAge: 24 * 60 * 60 * 1000,
-    httpOnly:true,
-    sameSite:"lax",
+    httpOnly: true,
+    secure: config.NODE_ENV === "production", // Use secure cookies in production
+    sameSite: config.NODE_ENV === "production" ? "none" : "lax", // Allow cross-site cookies in production
 }));
 app.use(passport.initialize());
 app.use(passport.session());
 
 app.use(cors({
-    origin: true, // Allow all origins for testing
-    credentials:true,
+    origin: [
+        "http://localhost:3000",
+        "http://localhost:5173", 
+        "https://team-sync-phi.vercel.app",
+        config.FRONTEND_ORIGIN
+    ].filter(Boolean),
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
 }));
 app.get("/",(req:Request,res:Response,next:NextFunction)=>{
     res.status(HTTP_CONFIG.OK).json({
@@ -47,7 +55,8 @@ app.get("/debug-session",(req:Request,res:Response,next:NextFunction)=>{
         user: req.user,
         passport: req.session?.passport,
         isAuthenticated: !!req.user,
-        cookies: req.headers.cookie
+        cookies: req.headers.cookie,
+        origin: req.headers.origin
     });
     
     res.status(HTTP_CONFIG.OK).json({
@@ -56,7 +65,17 @@ app.get("/debug-session",(req:Request,res:Response,next:NextFunction)=>{
         user: req.user,
         passport: req.session?.passport,
         isAuthenticated: !!req.user,
-        hasCookies: !!req.headers.cookie
+        hasCookies: !!req.headers.cookie,
+        origin: req.headers.origin
+    });
+});
+
+// Health check endpoint
+app.get("/health",(req:Request,res:Response,next:NextFunction)=>{
+    res.status(HTTP_CONFIG.OK).json({
+        message:"Backend is running",
+        timestamp: new Date().toISOString(),
+        environment: config.NODE_ENV
     });
 });
 
