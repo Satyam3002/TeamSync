@@ -1,2 +1,2 @@
-# TeamSync
+# SyncHub
 

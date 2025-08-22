@@ -80,7 +80,7 @@ export const getAllTasksController = asyncHandler(async(req:Request,res:Response
       return res.status(HTTP_CONFIG.OK).json({
         message:"Tasks fetched successfully",
         tasks,
-        total: paginationResult.totalCount
+        pagination: paginationResult
       })
 
 })
