@@ -21,13 +21,14 @@ const BASE_PATH = config.BASE_PATH;
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.use(session({
-    name:"session",
-    keys:[config.SESSION_SECRET],
-    maxAge: 24 * 60 * 60 * 1000,
+    name: "session",
+    keys: [config.SESSION_SECRET],
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
     httpOnly: true,
-    secure: config.NODE_ENV === "production", // Use secure cookies in production
-    sameSite: config.NODE_ENV === "production" ? "none" : "lax", // Allow cross-site cookies in production
-    path: "/", // Ensure cookies are sent for all paths
+    secure: config.NODE_ENV === "production",
+    sameSite: config.NODE_ENV === "production" ? "none" : "lax",
+    path: "/",
+    domain: config.NODE_ENV === "production" ? ".onrender.com" : undefined
 }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -80,6 +81,30 @@ app.get("/health",(req:Request,res:Response,next:NextFunction)=>{
         message:"Backend is running",
         timestamp: new Date().toISOString(),
         environment: config.NODE_ENV
+    });
+});
+
+// Debug endpoint to check session state
+app.get("/debug-session",(req:Request,res:Response,next:NextFunction)=>{
+    console.log("Session debug:", {
+        session: req.session,
+        user: req.user,
+        passport: req.session?.passport,
+        isAuthenticated: !!req.user,
+        cookies: req.headers.cookie,
+        origin: req.headers.origin,
+        sessionName: "session"
+    });
+    
+    res.status(HTTP_CONFIG.OK).json({
+        message:"Session debug",
+        session: req.session,
+        user: req.user,
+        passport: req.session?.passport,
+        isAuthenticated: !!req.user,
+        hasCookies: !!req.headers.cookie,
+        origin: req.headers.origin,
+        sessionName: "session"
     });
 });
 
