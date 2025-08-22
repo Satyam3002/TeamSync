@@ -1,7 +1,7 @@
 import "dotenv/config";
 import cors from "cors";
 import express,{NextFunction,Request,Response} from "express";
-import session from "cookie-session";
+// Removed cookie-session import - using JWT instead
 import config from "./config/app.config";
 import connectDatabase from "./config/database.config";
 import { HTTP_CONFIG } from "./config/http.config";
@@ -20,18 +20,9 @@ const BASE_PATH = config.BASE_PATH;
 
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
-app.use(session({
-    name: "session",
-    keys: [config.SESSION_SECRET],
-    maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    httpOnly: true,
-    secure: config.NODE_ENV === "production",
-    sameSite: config.NODE_ENV === "production" ? "none" : "lax",
-    path: "/",
-    domain: config.NODE_ENV === "production" ? ".onrender.com" : undefined
-}));
+// Removed session middleware - using JWT instead
 app.use(passport.initialize());
-app.use(passport.session());
+// Removed passport.session() - using JWT instead
 
 app.use(cors({
     origin: [
@@ -51,27 +42,23 @@ app.get("/",(req:Request,res:Response,next:NextFunction)=>{
     });
 });
 
-// Debug endpoint to check session state
-app.get("/debug-session",(req:Request,res:Response,next:NextFunction)=>{
-    console.log("Session debug:", {
-        session: req.session,
+// Debug endpoint to check JWT auth state
+app.get("/debug-auth",(req:Request,res:Response,next:NextFunction)=>{
+    const token = req.headers.authorization?.split(' ')[1];
+    
+    console.log("Auth debug:", {
+        token: token ? "present" : "missing",
         user: req.user,
-        passport: req.session?.passport,
         isAuthenticated: !!req.user,
-        cookies: req.headers.cookie,
-        origin: req.headers.origin,
-        sessionName: "session"
+        origin: req.headers.origin
     });
     
     res.status(HTTP_CONFIG.OK).json({
-        message:"Session debug",
-        session: req.session,
+        message:"Auth debug",
+        token: token ? "present" : "missing",
         user: req.user,
-        passport: req.session?.passport,
         isAuthenticated: !!req.user,
-        hasCookies: !!req.headers.cookie,
-        origin: req.headers.origin,
-        sessionName: "session"
+        origin: req.headers.origin
     });
 });
 
@@ -81,30 +68,6 @@ app.get("/health",(req:Request,res:Response,next:NextFunction)=>{
         message:"Backend is running",
         timestamp: new Date().toISOString(),
         environment: config.NODE_ENV
-    });
-});
-
-// Debug endpoint to check session state
-app.get("/debug-session",(req:Request,res:Response,next:NextFunction)=>{
-    console.log("Session debug:", {
-        session: req.session,
-        user: req.user,
-        passport: req.session?.passport,
-        isAuthenticated: !!req.user,
-        cookies: req.headers.cookie,
-        origin: req.headers.origin,
-        sessionName: "session"
-    });
-    
-    res.status(HTTP_CONFIG.OK).json({
-        message:"Session debug",
-        session: req.session,
-        user: req.user,
-        passport: req.session?.passport,
-        isAuthenticated: !!req.user,
-        hasCookies: !!req.headers.cookie,
-        origin: req.headers.origin,
-        sessionName: "session"
     });
 });
 

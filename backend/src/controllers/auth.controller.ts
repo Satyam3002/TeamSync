@@ -5,6 +5,8 @@ import { registerSchema } from "../validation/auth.validation";
 import { registerUserService } from "../services/auth.service";
 import { HTTP_CONFIG } from "../config/http.config";
 import passport from "passport";
+import jwt from "jsonwebtoken";
+import config from "../config/app.config";
 
 
 export const googleLoginCallback = asyncHandler(async (req: Request, res: Response) => {
@@ -39,21 +41,21 @@ export const loginUserController = asyncHandler(async (req: Request, res: Respon
                 message: info.message,
             });
         }
-        req.logIn(user, (err) => {
-            if(err){
-                return next(err);
-            }
-            
-            // Debug: Check if session is being saved
-            console.log("Login successful - Session:", req.session);
-            console.log("Login successful - User:", user);
-            console.log("Login successful - Response headers will include Set-Cookie");
-            
-            // cookie-session saves automatically, no need to call save()
-            return res.status(HTTP_CONFIG.OK).json({
-                message: "Login successful",
-                user,
-            });
+        
+        // Generate JWT token instead of using sessions
+        const token = jwt.sign(
+            { userId: user._id, email: user.email },
+            config.SESSION_SECRET,
+            { expiresIn: '24h' }
+        );
+        
+        console.log("Login successful - User:", user);
+        console.log("JWT token generated");
+        
+        return res.status(HTTP_CONFIG.OK).json({
+            message: "Login successful",
+            user,
+            token
         });
     })(req, res, next);
 });
@@ -61,16 +63,8 @@ export const loginUserController = asyncHandler(async (req: Request, res: Respon
 
 export const logoutUserController = asyncHandler(
     async (req: Request, res: Response) => {
-      req.logout((err) => {
-        if (err) {
-          console.error("Logout error:", err);
-          return res
-            .status(HTTP_CONFIG.INTERNAL_SERVER_ERROR)
-            .json({ error: "Failed to log out" });
-        }
-      });
-  
-      req.session = null;
+      // JWT tokens are stateless, so we just return success
+      // The frontend will remove the token from localStorage
       return res
         .status(HTTP_CONFIG.OK)
         .json({ message: "Logged out successfully" });

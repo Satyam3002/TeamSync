@@ -15,21 +15,23 @@ const options = {
 
 const API = axios.create(options);
 
-// Request interceptor to log requests
+// Request interceptor to log requests and add JWT token
 API.interceptors.request.use(
   (config) => {
+    // Add JWT token to requests
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    
     console.log("API Request:", {
       url: config.url,
       method: config.method,
       baseURL: config.baseURL,
       withCredentials: config.withCredentials,
       headers: config.headers,
-      cookies: document.cookie
+      token: token ? "present" : "missing"
     });
-    
-    // Log cookies separately for better visibility
-    console.log("Browser Cookies:", document.cookie);
-    console.log("Cookie Length:", document.cookie.length);
     
     return config;
   },
@@ -46,10 +48,10 @@ API.interceptors.response.use(
       headers: response.headers
     });
     
-    // Log cookies after login response
-    if (response.config.url === '/auth/login') {
-      console.log("Cookies after login:", document.cookie);
-      console.log("Set-Cookie headers:", response.headers['set-cookie']);
+    // Store JWT token on login response
+    if (response.data.token) {
+      localStorage.setItem('authToken', response.data.token);
+      console.log("JWT token stored in localStorage");
     }
     
     return response;
@@ -67,9 +69,11 @@ API.interceptors.response.use(
     });
 
     if (status === 401) {
-      console.log("Unauthorized - but not redirecting to avoid infinite loop");
-      // Don't redirect automatically to avoid infinite loops
-      // Let the individual components handle 401 errors
+      console.log("Unauthorized - clearing token and redirecting to login");
+      // Clear token on 401 errors
+      localStorage.removeItem('authToken');
+      // Redirect to login page
+      window.location.href = '/signin';
     }
 
     const customError: CustomError = {
