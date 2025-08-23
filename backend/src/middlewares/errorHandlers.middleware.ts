@@ -17,27 +17,53 @@ const formatZodError = (res: Response, err: ZodError) => {
 }
 
 export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
+    // Log the error for debugging
+    console.error('[ERROR]', new Date().toISOString(), err);
+    console.error('[ERROR] Stack:', err.stack);
 
-   if(err instanceof SyntaxError) {
-    return res.status(HTTP_CONFIG.BAD_REQUEST).json({
-        message: "Invalid JSON payload"
-    })
-   }
-   if(err instanceof ZodError) {
-    return formatZodError(res, err);
-   }
-   if(err instanceof AppError) {
-   return res.status(err.statusCode).json({
-    message: err.message,
-    errorCode: err.errorCode
-   })
-   }
+    // Handle different types of errors
+    if(err instanceof SyntaxError) {
+        return res.status(HTTP_CONFIG.BAD_REQUEST).json({
+            message: "Invalid JSON payload"
+        })
+    }
+    
+    if(err instanceof ZodError) {
+        return formatZodError(res, err);
+    }
+    
+    if(err instanceof AppError) {
+        return res.status(err.statusCode).json({
+            message: err.message,
+            errorCode: err.errorCode
+        })
+    }
 
-   return res.status(HTTP_CONFIG.INTERNAL_SERVER_ERROR).json({
-    message: "Internal server error",
-    error: err?.message || "Unknown error occured"
-   });
+    // Handle MongoDB errors
+    if (err.name === 'CastError') {
+        return res.status(HTTP_CONFIG.BAD_REQUEST).json({
+            message: "Invalid ID format",
+            errorCode: 'INVALID_ID'
+        });
+    }
 
+    if (err.name === 'ValidationError') {
+        return res.status(HTTP_CONFIG.BAD_REQUEST).json({
+            message: "Validation failed",
+            errorCode: 'VALIDATION_ERROR'
+        });
+    }
 
-   
+    if (err.code === 11000) {
+        return res.status(HTTP_CONFIG.CONFLICT).json({
+            message: "Duplicate key error",
+            errorCode: 'DUPLICATE_KEY'
+        });
+    }
+
+    // Default error response
+    return res.status(HTTP_CONFIG.INTERNAL_SERVER_ERROR).json({
+        message: "Internal server error",
+        errorCode: 'INTERNAL_ERROR'
+    });
 }

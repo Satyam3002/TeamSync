@@ -14,6 +14,7 @@ import workspaceRoutes from "./routes/workspace.route";
 import memberRoutes from "./routes/member.route";
 import projectRoutes from "./routes/project.route";
 import taskRoutes from "./routes/task.route";
+import { errorHandler } from "./middlewares/errorHandlers.middleware";
 
 const app = express();
 const BASE_PATH = config.BASE_PATH;
@@ -115,9 +116,31 @@ app.use(`${BASE_PATH}/member`,isAuthenticated,memberRoutes);
 app.use(`${BASE_PATH}/project`,isAuthenticated,projectRoutes);
 app.use(`${BASE_PATH}/task`,isAuthenticated,taskRoutes);
 
+// Global error handler - MUST be last
+app.use(errorHandler);
+
 app.listen(config.PORT, async()=>{
     console.log(`Server is running on port ${config.PORT}`);
     console.log(`Environment: ${config.NODE_ENV}`);
     console.log(`Frontend Origin: ${config.FRONTEND_ORIGIN}`);
     await connectDatabase();
+});
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+    // Don't exit the process, just log the error
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (error) => {
+    console.error('Uncaught Exception:', error);
+    console.error('Stack:', error.stack);
+    // Don't exit the process, just log the error
+});
+
+// Handle SIGTERM gracefully
+process.on('SIGTERM', () => {
+    console.log('SIGTERM received, shutting down gracefully');
+    process.exit(0);
 });

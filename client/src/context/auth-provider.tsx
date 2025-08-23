@@ -49,8 +49,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     if (workspaceError) {
+      console.log("Workspace error:", workspaceError);
+
       if (workspaceError?.errorCode === "ACCESS_UNAUTHORIZED") {
         navigate("/"); // Redirect if the user is not a member of the workspace
+      } else if (workspaceError?.errorCode === "RESOURCE_NOT_FOUND") {
+        // Workspace not found - redirect to dashboard
+        console.log("Workspace not found, redirecting to dashboard");
+        navigate("/");
       }
     }
   }, [navigate, workspaceError]);
