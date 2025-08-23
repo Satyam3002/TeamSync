@@ -13,13 +13,19 @@ const AuthRoute = () => {
   console.log("AuthRoute - location:", location.pathname);
   console.log("AuthRoute - authData:", authData);
   console.log("AuthRoute - user:", user);
+  console.log("AuthRoute - user.currentWorkspace:", user?.currentWorkspace);
   console.log("AuthRoute - _isAuthRoute:", _isAuthRoute);
 
   if (isLoading && !_isAuthRoute) return <DashboardSkeleton />;
 
   if (!user) return <Outlet />;
 
-  return <Navigate to={`workspace/${user.currentWorkspace?._id}`} replace />;
+  // If user has no current workspace, redirect to dashboard
+  if (!user.currentWorkspace?._id) {
+    return <Navigate to="/" replace />;
+  }
+
+  return <Navigate to={`workspace/${user.currentWorkspace._id}`} replace />;
 };
 
 export default AuthRoute;

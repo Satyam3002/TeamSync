@@ -48,13 +48,17 @@ export function WorkspaceSwitcher() {
 
   React.useEffect(() => {
     if (workspaces?.length) {
-      const workspace = workspaceId
-        ? workspaces.find((ws) => ws._id === workspaceId)
-        : workspaces[0];
+      const validWorkspaces = workspaces.filter((ws) => ws && ws._id);
 
-      if (workspace) {
-        setActiveWorkspace(workspace);
-        if (!workspaceId) navigate(`/workspace/${workspace._id}`);
+      if (validWorkspaces.length > 0) {
+        const workspace = workspaceId
+          ? validWorkspaces.find((ws) => ws._id === workspaceId)
+          : validWorkspaces[0];
+
+        if (workspace) {
+          setActiveWorkspace(workspace);
+          if (!workspaceId) navigate(`/workspace/${workspace._id}`);
+        }
       }
     }
   }, [workspaceId, workspaces, navigate]);
@@ -116,24 +120,26 @@ export function WorkspaceSwitcher() {
               </DropdownMenuLabel>
               {isPending ? <Loader className=" w-5 h-5 animate-spin" /> : null}
 
-              {workspaces?.map((workspace) => (
-                <DropdownMenuItem
-                  key={workspace._id}
-                  onClick={() => onSelect(workspace)}
-                  className="gap-2 p-2 !cursor-pointer"
-                >
-                  <div className="flex size-6 items-center justify-center rounded-sm border">
-                    {workspace?.name?.split(" ")?.[0]?.charAt(0)}
-                  </div>
-                  {workspace.name}
+              {workspaces
+                ?.filter((workspace) => workspace && workspace._id)
+                .map((workspace) => (
+                  <DropdownMenuItem
+                    key={workspace._id}
+                    onClick={() => onSelect(workspace)}
+                    className="gap-2 p-2 !cursor-pointer"
+                  >
+                    <div className="flex size-6 items-center justify-center rounded-sm border">
+                      {workspace?.name?.split(" ")?.[0]?.charAt(0) || "?"}
+                    </div>
+                    {workspace?.name || "Unnamed Workspace"}
 
-                  {workspace._id === workspaceId && (
-                    <DropdownMenuShortcut className="tracking-normal !opacity-100">
-                      <Check className="w-4 h-4" />
-                    </DropdownMenuShortcut>
-                  )}
-                </DropdownMenuItem>
-              ))}
+                    {workspace._id === workspaceId && (
+                      <DropdownMenuShortcut className="tracking-normal !opacity-100">
+                        <Check className="w-4 h-4" />
+                      </DropdownMenuShortcut>
+                    )}
+                  </DropdownMenuItem>
+                ))}
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 className="gap-2 p-2 !cursor-pointer"

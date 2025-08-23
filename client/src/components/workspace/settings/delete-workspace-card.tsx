@@ -29,7 +29,15 @@ const DeleteWorkspaceCard = () => {
         queryClient.invalidateQueries({
           queryKey: ["userWorkspaces"],
         });
-        navigate(`/workspace/${data.currentWorkspace}`);
+
+        // Check if there's a valid workspace to redirect to
+        if (data.currentWorkspace) {
+          navigate(`/workspace/${data.currentWorkspace}`);
+        } else {
+          // If no workspace available, redirect to dashboard or create workspace
+          navigate("/");
+        }
+
         setTimeout(() => onCloseDialog(), 100);
       },
       onError: (error) => {

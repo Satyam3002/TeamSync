@@ -26,7 +26,17 @@ app.use(passport.initialize());
 
 // Add CORS headers for preflight requests
 app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', 'https://team-sync-phi.vercel.app');
+    const allowedOrigins = [
+        'http://localhost:3000',
+        'http://localhost:5173',
+        'https://team-sync-phi.vercel.app'
+    ];
+    
+    const origin = req.headers.origin;
+    if (origin && allowedOrigins.includes(origin)) {
+        res.header('Access-Control-Allow-Origin', origin);
+    }
+    
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
     res.header('Access-Control-Allow-Credentials', 'true');
