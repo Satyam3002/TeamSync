@@ -24,17 +24,34 @@ app.use(express.urlencoded({extended:true}));
 app.use(passport.initialize());
 // Removed passport.session() - using JWT instead
 
+// Add CORS headers for preflight requests
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', 'https://team-sync-phi.vercel.app');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    
+    if (req.method === 'OPTIONS') {
+        res.sendStatus(200);
+    } else {
+        next();
+    }
+});
+
 app.use(cors({
     origin: [
         "http://localhost:3000",
         "http://localhost:5173", 
         "https://team-sync-phi.vercel.app",
+        "https://teamsync-phi.vercel.app",
         config.FRONTEND_ORIGIN
     ].filter(Boolean),
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "Cookie", "Set-Cookie"],
+    allowedHeaders: ["Content-Type", "Authorization", "Cookie", "Set-Cookie", "Origin", "Accept"],
     exposedHeaders: ["Set-Cookie"],
+    preflightContinue: false,
+    optionsSuccessStatus: 204
 }));
 app.get("/",(req:Request,res:Response,next:NextFunction)=>{
     res.status(HTTP_CONFIG.OK).json({
