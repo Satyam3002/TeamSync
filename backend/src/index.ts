@@ -71,6 +71,16 @@ app.get("/health",(req:Request,res:Response,next:NextFunction)=>{
     });
 });
 
+// API health check endpoint
+app.get("/api/health",(req:Request,res:Response,next:NextFunction)=>{
+    res.status(HTTP_CONFIG.OK).json({
+        message:"API is running",
+        timestamp: new Date().toISOString(),
+        environment: config.NODE_ENV,
+        basePath: BASE_PATH
+    });
+});
+
 app.use(`${BASE_PATH}/auth`,authRoutes);
 app.use(`${BASE_PATH}/user`,isAuthenticated,userRoutes);
 app.use(`${BASE_PATH}/workspace`,isAuthenticated,workspaceRoutes);

@@ -20,8 +20,12 @@ API.interceptors.request.use(
   (config) => {
     // Add JWT token to requests
     const token = localStorage.getItem('authToken');
+    console.log("Stored token:", token);
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      console.log("Authorization header set:", `Bearer ${token}`);
+    } else {
+      console.log("No token found in localStorage");
     }
     
     console.log("API Request:", {
@@ -49,15 +53,20 @@ API.interceptors.response.use(
     });
     
     // Store JWT token on login response
+    console.log("Response data:", response.data);
     if (response.data.token) {
       localStorage.setItem('authToken', response.data.token);
-      console.log("JWT token stored in localStorage");
+      console.log("JWT token stored in localStorage:", response.data.token);
+    } else {
+      console.log("No token found in response data");
     }
     
     return response;
   },
   async (error) => {
-    const { data, status } = error.response;
+    // Handle cases where error.response is undefined
+    const status = error.response?.status;
+    const data = error.response?.data;
 
     console.log("API Error:", {
       status,
@@ -65,7 +74,8 @@ API.interceptors.response.use(
       url: error.config?.url,
       method: error.config?.method,
       baseURL: error.config?.baseURL,
-      withCredentials: error.config?.withCredentials
+      withCredentials: error.config?.withCredentials,
+      message: error.message
     });
 
     if (status === 401) {
