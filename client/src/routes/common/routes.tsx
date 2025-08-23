@@ -16,6 +16,7 @@ export const authenticationRoutePaths = [
 ];
 
 export const protectedRoutePaths = [
+  { path: PROTECTED_ROUTES.DASHBOARD, element: <WorkspaceDashboard /> },
   { path: PROTECTED_ROUTES.WORKSPACE, element: <WorkspaceDashboard /> },
   { path: PROTECTED_ROUTES.TASKS, element: <Tasks /> },
   { path: PROTECTED_ROUTES.MEMBERS, element: <Members /> },

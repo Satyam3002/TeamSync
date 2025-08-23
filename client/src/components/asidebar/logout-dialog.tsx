@@ -37,8 +37,8 @@ const LogoutDialog = (props: {
         queryKey: ["authUser"],
       });
 
-      // Navigate to home page
-      navigate("/");
+      // Navigate to sign-in page
+      navigate("/sign-in");
       setIsOpen(false);
     },
     onError: (error) => {

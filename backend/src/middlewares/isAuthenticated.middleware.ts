@@ -11,7 +11,7 @@ export const isAuthenticated = async (req: Request, res: Response, next: NextFun
         console.log("isAuthenticated middleware - token:", token ? "present" : "missing");
         
         if (!token) {
-            throw new UnauthorizedException('No token provided');
+            return next(new UnauthorizedException('No token provided'));
         }
         
         const decoded = jwt.verify(token, config.SESSION_SECRET) as any;
@@ -20,7 +20,7 @@ export const isAuthenticated = async (req: Request, res: Response, next: NextFun
         // Fetch user from database
         const user = await UserModel.findById(decoded.userId);
         if (!user) {
-            throw new UnauthorizedException('User not found');
+            return next(new UnauthorizedException('User not found'));
         }
         
         req.user = user;
@@ -31,21 +31,21 @@ export const isAuthenticated = async (req: Request, res: Response, next: NextFun
         
         // Handle JWT errors specifically
         if (error instanceof jwt.JsonWebTokenError) {
-            throw new UnauthorizedException('Invalid token');
+            return next(new UnauthorizedException('Invalid token'));
         }
         
         if (error instanceof jwt.TokenExpiredError) {
-            throw new UnauthorizedException('Token expired');
+            return next(new UnauthorizedException('Token expired'));
         }
         
         // Re-throw AppError instances
         if (error instanceof UnauthorizedException) {
-            throw error;
+            return next(error);
         }
         
         // Handle other errors
         console.error("Unexpected error in authentication middleware:", error);
-        throw new UnauthorizedException('Authentication failed');
+        return next(new UnauthorizedException('Authentication failed'));
     }
 }
 

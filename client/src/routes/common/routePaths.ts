@@ -3,12 +3,13 @@ export const isAuthRoute = (pathname: string): boolean => {
 };
 
 export const AUTH_ROUTES = {
-  SIGN_IN: "/",
+  SIGN_IN: "/sign-in",
   SIGN_UP: "/sign-up",
   GOOGLE_OAUTH_CALLBACK: "/google/oauth/callback",
 };
 
 export const PROTECTED_ROUTES = {
+  DASHBOARD: "/dashboard",
   WORKSPACE: "/workspace/:workspaceId",
   TASKS: "/workspace/:workspaceId/tasks",
   MEMBERS: "/workspace/:workspaceId/members",

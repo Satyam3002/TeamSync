@@ -130,6 +130,7 @@ app.listen(config.PORT, async()=>{
 process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
     // Don't exit the process, just log the error
+    // The error handler middleware will handle the response
 });
 
 // Handle uncaught exceptions
@@ -137,10 +138,17 @@ process.on('uncaughtException', (error) => {
     console.error('Uncaught Exception:', error);
     console.error('Stack:', error.stack);
     // Don't exit the process, just log the error
+    // The error handler middleware will handle the response
 });
 
 // Handle SIGTERM gracefully
 process.on('SIGTERM', () => {
     console.log('SIGTERM received, shutting down gracefully');
+    process.exit(0);
+});
+
+// Handle SIGINT gracefully
+process.on('SIGINT', () => {
+    console.log('SIGINT received, shutting down gracefully');
     process.exit(0);
 });
