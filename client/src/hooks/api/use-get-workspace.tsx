@@ -8,8 +8,20 @@ const useGetWorkspaceQuery = (workspaceId: string) => {
     queryKey: ["workspace", workspaceId],
     queryFn: () => getWorkspaceByIdQueryFn(workspaceId),
     staleTime: 0,
-    retry: 2,
     enabled: !!workspaceId,
+    retry: (failureCount, error) => {
+      // Don't retry if there's no access (401 error)
+      if (
+        error?.errorCode === "ACCESS_UNAUTHORIZED" ||
+        error?.errorCode === "RESOURCE_NOT_FOUND"
+      ) {
+        return false;
+      }
+      // Only retry 2 times for other errors
+      return failureCount < 2;
+    },
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
   });
 
   return query;

@@ -44,6 +44,9 @@ API.interceptors.request.use(
   }
 );
 
+// Flag to prevent infinite redirects
+let isRedirecting = false;
+
 API.interceptors.response.use(
   (response) => {
     console.log("API Response:", {
@@ -57,6 +60,8 @@ API.interceptors.response.use(
     if (response.data.token) {
       localStorage.setItem('authToken', response.data.token);
       console.log("JWT token stored in localStorage:", response.data.token);
+      // Reset redirect flag when token is stored
+      isRedirecting = false;
     } else {
       console.log("No token found in response data");
     }
@@ -78,12 +83,13 @@ API.interceptors.response.use(
       message: error.message
     });
 
-    if (status === 401) {
+    if (status === 401 && !isRedirecting) {
       console.log("Unauthorized - clearing token and redirecting to login");
+      isRedirecting = true;
       // Clear token on 401 errors
       localStorage.removeItem('authToken');
       // Redirect to login page
-      window.location.href = '/signin';
+      window.location.href = '/sign-in';
     }
 
     const customError: CustomError = {
